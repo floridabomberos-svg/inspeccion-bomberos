@@ -6,89 +6,16 @@
 <title>Inspección Bomberos</title>
 
 <style>
-body{
-font-family:Arial, sans-serif;
-margin:0;
-background:#f0f0f0;
-}
-
-.header{
-background:#d32f2f;
-color:white;
-padding:15px;
-text-align:center;
-font-weight:bold;
-font-size:18px;
-position:sticky;
-top:0;
-z-index:1000;
-}
-
-.container{
-padding:15px;
-}
-
-.card{
-background:white;
-padding:15px;
-border-radius:10px;
-margin-bottom:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
-
-input, textarea, select{
-width:100%;
-padding:10px;
-margin-top:5px;
-border-radius:6px;
-border:1px solid #ccc;
-box-sizing:border-box;
-}
-
-button{
-padding:12px;
-border:none;
-border-radius:6px;
-background:#d32f2f;
-color:white;
-width:100%;
-margin-top:8px;
-font-weight:bold;
-}
-
-.btn-float{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#d32f2f;
-color:white;
-width:60px;
-height:60px;
-border-radius:50%;
-font-size:30px;
-border:none;
-box-shadow:0 4px 10px rgba(0,0,0,.3);
-}
-
-.estado{
-padding:5px 10px;
-border-radius:5px;
-color:white;
-font-size:12px;
-float:right;
-}
-
-.pendiente{background:orange;}
-.aprobado{background:green;}
-.rechazado{background:red;}
-
-canvas{
-border:1px solid #ccc;
-border-radius:6px;
-width:100%;
-height:200px;
-}
-
+body{font-family:Arial;margin:0;background:#f0f0f0}
+.header{background:#d32f2f;color:white;padding:15px;text-align:center;font-weight:bold;font-size:18px}
+.container{padding:15px}
+.card{background:white;padding:15px;border-radius:10px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+input,textarea,select{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
+button{padding:12px;border:none;border-radius:6px;background:#d32f2f;color:white;width:100%;margin-top:8px;font-weight:bold}
+.btn-float{position:fixed;bottom:20px;right:20px;background:#d32f2f;color:white;width:60px;height:60px;border-radius:50%;font-size:30px;border:none;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.estado{padding:5px 10px;border-radius:5px;color:white;font-size:12px;float:right}
+.pendiente{background:orange}
+canvas{border:1px solid #ccc;border-radius:6px;width:100%;height:200px}
 #panel{display:none}
 </style>
 
@@ -97,7 +24,7 @@ height:200px;
 
 <div class="header">INSPECCIÓN BOMBEROS</div>
 
-<div class="container" id="login">
+<div class="container" id="loginBox">
 <div class="card">
 <h3>Login</h3>
 <input type="text" id="usuario" placeholder="Usuario">
@@ -147,7 +74,7 @@ height:200px;
 
 </div>
 
-<button class="btn-float" onclick="scrollTop()">+</button>
+<button class="btn-float" onclick="window.scrollTo({top:0,behavior:'smooth'})">+</button>
 
 <script>
 
@@ -169,7 +96,7 @@ canvas.addEventListener("touchmove",dibujarTouch);
 document.getElementById("foto").addEventListener("change",function(e){
 let reader=new FileReader();
 reader.onload=function(){
-preview.src=reader.result;
+document.getElementById("preview").src=reader.result;
 }
 reader.readAsDataURL(e.target.files[0]);
 });
@@ -204,11 +131,15 @@ ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 function login(){
-if(usuario.value==="admin" && password.value==="1996"){
-login.style.display="none";
-panel.style.display="block";
+let user=document.getElementById("usuario").value;
+let pass=document.getElementById("password").value;
+
+if(user==="admin" && pass==="1996"){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("panel").style.display="block";
+mostrar();
 }else{
-alert("Datos incorrectos");
+alert("Usuario o contraseña incorrectos");
 }
 }
 
@@ -217,15 +148,10 @@ function guardar(){
 let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 
 let item={
-nombre:nombre.value,
-direccion:direccion.value,
-responsable:responsable.value,
-telefono:telefono.value,
-extintores:extintores.value,
-salidas:salidas.value,
-obs:obs.value,
-foto:preview.src,
-firma:canvas.toDataURL(),
+nombre:document.getElementById("nombre").value,
+direccion:document.getElementById("direccion").value,
+responsable:document.getElementById("responsable").value,
+telefono:document.getElementById("telefono").value,
 fecha:new Date().toLocaleString()
 };
 
@@ -239,8 +165,7 @@ function mostrar(){
 let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 lista.innerHTML="";
 
-data.reverse().forEach(i=>{
-
+data.slice().reverse().forEach(i=>{
 lista.innerHTML+=`
 <div class="card">
 <span class="estado pendiente">Pendiente</span>
@@ -249,13 +174,8 @@ ${i.direccion}<br>
 ${i.fecha}
 </div>
 `;
-
 });
 
-}
-
-function scrollTop(){
-window.scrollTo({top:0,behavior:"smooth"});
 }
 
 </script>
