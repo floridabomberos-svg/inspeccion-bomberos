@@ -1,104 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inspección Bomberos</title>
+
 <style>
-body{font-family:Arial;background:#f5f5f5;padding:20px}
-.card{background:white;padding:20px;border-radius:10px;margin-bottom:10px}
-input,textarea{width:100%;padding:10px;margin:5px 0}
-button{background:red;color:white;padding:10px;border:none;width:100%;margin-top:5px}
+body{
+font-family: Arial, sans-serif;
+background:#f5f5f5;
+margin:0;
+padding:0;
+}
+
+.container{
+max-width:400px;
+margin:60px auto;
+background:white;
+padding:20px;
+border-radius:8px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+background:red;
+color:white;
+border:none;
+border-radius:5px;
+font-size:16px;
+}
+
+button:hover{
+background:#cc0000;
+}
+
+#panel{
+display:none;
+}
+
 </style>
 </head>
-<script>
-function login() {
-    var user = document.getElementById("usuario").value;
-    var pass = document.getElementById("password").value;
 
-    if(user === "admin" && pass === "1996"){
-        localStorage.setItem("logueado", "si");
-        window.location.href = "panel.html";
-    } else {
-        alert("Usuario o contraseña incorrectos");
-    }
-}
-</script>
-  <body>
+<body>
 
-<div class="card" id="login">
+<div class="container" id="login">
 <h2>Login</h2>
-<input type="text" id="user" placeholder="Usuario">
-<input type="password" id="pass" placeholder="Contraseña">
+
+<input type="text" id="usuario" placeholder="Usuario">
+<input type="password" id="password" placeholder="Contraseña">
+
 <button onclick="login()">Ingresar</button>
-<p id="msg"></p>
 </div>
 
-<div id="app" style="display:none">
+<div class="container" id="panel">
+<h2>Panel Inspección</h2>
+<p>Bienvenido al sistema de inspección 🚒</p>
 
-<div class="card">
-<h2>Nueva Inspección</h2>
-<input id="nombre" placeholder="Nombre establecimiento">
-<input id="direccion" placeholder="Dirección">
-<input id="responsable" placeholder="Responsable">
-<input id="telefono" placeholder="Teléfono">
-<input type="date" id="fecha">
-<textarea id="obs" placeholder="Observaciones"></textarea>
-<button onclick="guardar()">Guardar</button>
 <button onclick="logout()">Cerrar sesión</button>
 </div>
 
-<div class="card">
-<h2>Inspecciones Guardadas</h2>
-<div id="lista"></div>
-</div>
-
-</div>
-
 <script>
-let users=[{user:"admin",pass:"1996"}];
-let data=JSON.parse(localStorage.getItem("inspecciones"))||[];
-
 function login(){
-let u=user.value;
-let p=pass.value;
-let ok=users.find(x=>x.user==u && x.pass==p);
-if(ok){
-login.style.display="none";
-app.style.display="block";
-mostrar();
-}else msg.innerText="Error";
+var user = document.getElementById("usuario").value.trim();
+var pass = document.getElementById("password").value.trim();
+
+if(user === "admin" && pass === "1996"){
+localStorage.setItem("login","ok");
+mostrarPanel();
+}else{
+alert("Usuario o contraseña incorrectos");
+}
 }
 
-function guardar(){
-let item={
-nombre:nombre.value,
-direccion:direccion.value,
-responsable:responsable.value,
-telefono:telefono.value,
-fecha:fecha.value,
-obs:obs.value
-};
-data.push(item);
-localStorage.setItem("inspecciones",JSON.stringify(data));
-mostrar();
-alert("Guardado");
-}
-
-function mostrar(){
-lista.innerHTML="";
-data.forEach(i=>{
-lista.innerHTML+=`
-<div class="card">
-<b>${i.nombre}</b><br>
-${i.direccion}<br>
-${i.fecha}
-</div>`;
-});
+function mostrarPanel(){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
 }
 
 function logout(){
+localStorage.removeItem("login");
 location.reload();
+}
+
+window.onload = function(){
+if(localStorage.getItem("login") === "ok"){
+mostrarPanel();
+}
 }
 </script>
 
