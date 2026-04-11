@@ -17,10 +17,19 @@ button{width:100%;padding:12px;margin-top:10px;background:red;color:white;border
 #panel{display:none}
 canvas{border:1px solid #000;width:100%;height:200px}
 img{width:100%;margin-top:10px}
+#menu button{background:white;color:#d32f2f;margin:2px}
 </style>
 
 </head>
 <body>
+
+<div id="menu" style="display:none;background:#d32f2f;color:white;padding:10px;position:sticky;top:0">
+<button onclick="mostrarFormulario()">Nueva</button>
+<button onclick="verRegistros()">Registros</button>
+<button onclick="exportar()">Exportar</button>
+<button onclick="instalar()">Instalar</button>
+<button onclick="logout()">Salir</button>
+</div>
 
 <div class="container" id="login">
 <h2>Login</h2>
@@ -57,7 +66,7 @@ img{width:100%;margin-top:10px}
 <img id="preview">
 
 <label>Firma</label>
-<canvas id="firma" width="400" height="200"></canvas>
+<canvas id="firma"></canvas>
 <button onclick="limpiarFirma()">Limpiar firma</button>
 
 <button onclick="guardar()">Guardar inspección</button>
@@ -71,6 +80,7 @@ img{width:100%;margin-top:10px}
 <script>
 
 let canvas, ctx, dibujando=false;
+let deferredPrompt;
 
 window.onload=function(){
 
@@ -93,6 +103,17 @@ document.getElementById("preview").src=reader.result;
 reader.readAsDataURL(e.target.files[0]);
 });
 
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+});
+
+function instalar(){
+if(deferredPrompt){
+deferredPrompt.prompt();
+}
 }
 
 function iniciar(){dibujando=true}
@@ -140,6 +161,7 @@ let pass=document.getElementById("password").value;
 if(user==="admin" && pass==="1996"){
 document.getElementById("login").style.display="none";
 document.getElementById("panel").style.display="block";
+document.getElementById("menu").style.display="block";
 mostrar();
 }else{
 alert("Usuario incorrecto");
@@ -183,6 +205,23 @@ ${i.fecha}<br>
 ${i.direccion}
 </div>`;
 });
+}
+
+function mostrarFormulario(){
+document.getElementById("panel").scrollIntoView();
+}
+
+function verRegistros(){
+document.getElementById("lista").scrollIntoView();
+}
+
+function exportar(){
+let data=localStorage.getItem("inspecciones");
+let blob=new Blob([data],{type:"application/json"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="inspecciones.json";
+a.click();
 }
 
 </script>
