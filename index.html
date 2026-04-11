@@ -11,11 +11,12 @@ body{font-family:Arial;margin:0;background:#f0f0f0}
 .container{padding:15px}
 .card{background:white;padding:15px;border-radius:10px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
 input,textarea,select{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
-button{padding:12px;border:none;border-radius:6px;background:#d32f2f;color:white;width:100%;margin-top:8px;font-weight:bold}
-.btn-float{position:fixed;bottom:20px;right:20px;background:#d32f2f;color:white;width:60px;height:60px;border-radius:50%;font-size:30px;border:none;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+button{padding:10px;border:none;border-radius:6px;background:#d32f2f;color:white;margin-top:5px}
+.btn-float{position:fixed;bottom:20px;right:20px;background:#d32f2f;color:white;width:60px;height:60px;border-radius:50%;font-size:30px;border:none}
 .estado{padding:5px 10px;border-radius:5px;color:white;font-size:12px;float:right}
-.pendiente{background:orange}
-canvas{border:1px solid #ccc;border-radius:6px;width:100%;height:200px}
+.Pendiente{background:orange}
+.Aprobado{background:green}
+.Rechazado{background:red}
 #panel{display:none}
 </style>
 
@@ -43,31 +44,10 @@ canvas{border:1px solid #ccc;border-radius:6px;width:100%;height:200px}
 <input id="responsable" placeholder="Responsable">
 <input id="telefono" placeholder="Teléfono">
 
-<label>Extintores</label>
-<select id="extintores">
-<option>SI</option>
-<option>NO</option>
-</select>
-
-<label>Salidas</label>
-<select id="salidas">
-<option>SI</option>
-<option>NO</option>
-</select>
-
-<textarea id="obs" placeholder="Observaciones"></textarea>
-
-<label>Foto</label>
-<input type="file" accept="image/*" id="foto">
-<img id="preview" style="width:100%;margin-top:5px">
-
-<label>Firma</label>
-<canvas id="firma"></canvas>
-<button onclick="limpiarFirma()">Limpiar firma</button>
-
 <button onclick="guardar()">Guardar</button>
-
 </div>
+
+<input type="text" id="buscar" placeholder="Buscar..." onkeyup="filtrar()">
 
 <h3>Inspecciones</h3>
 <div id="lista"></div>
@@ -77,58 +57,6 @@ canvas{border:1px solid #ccc;border-radius:6px;width:100%;height:200px}
 <button class="btn-float" onclick="window.scrollTo({top:0,behavior:'smooth'})">+</button>
 
 <script>
-
-let canvas, ctx, dibujando=false;
-
-window.onload=function(){
-
-canvas=document.getElementById("firma");
-ctx=canvas.getContext("2d");
-
-canvas.addEventListener("mousedown",()=>dibujando=true);
-canvas.addEventListener("mouseup",()=>dibujando=false);
-canvas.addEventListener("mousemove",dibujar);
-
-canvas.addEventListener("touchstart",()=>dibujando=true);
-canvas.addEventListener("touchend",()=>dibujando=false);
-canvas.addEventListener("touchmove",dibujarTouch);
-
-document.getElementById("foto").addEventListener("change",function(e){
-let reader=new FileReader();
-reader.onload=function(){
-document.getElementById("preview").src=reader.result;
-}
-reader.readAsDataURL(e.target.files[0]);
-});
-
-}
-
-function dibujar(e){
-if(!dibujando) return;
-ctx.lineWidth=2;
-ctx.lineCap="round";
-ctx.lineTo(e.offsetX,e.offsetY);
-ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(e.offsetX,e.offsetY);
-}
-
-function dibujarTouch(e){
-if(!dibujando) return;
-let rect=canvas.getBoundingClientRect();
-let x=e.touches[0].clientX-rect.left;
-let y=e.touches[0].clientY-rect.top;
-ctx.lineWidth=2;
-ctx.lineCap="round";
-ctx.lineTo(x,y);
-ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(x,y);
-}
-
-function limpiarFirma(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-}
 
 function login(){
 let user=document.getElementById("usuario").value;
@@ -145,19 +73,28 @@ alert("Usuario o contraseña incorrectos");
 
 function guardar(){
 
+navigator.geolocation.getCurrentPosition(function(pos){
+
 let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 
 let item={
-nombre:document.getElementById("nombre").value,
-direccion:document.getElementById("direccion").value,
-responsable:document.getElementById("responsable").value,
-telefono:document.getElementById("telefono").value,
+id:Date.now(),
+numero:data.length+1,
+nombre:nombre.value,
+direccion:direccion.value,
+responsable:responsable.value,
+telefono:telefono.value,
+estado:"Pendiente",
+lat:pos.coords.latitude,
+lng:pos.coords.longitude,
 fecha:new Date().toLocaleString()
 };
 
 data.push(item);
 localStorage.setItem("inspecciones",JSON.stringify(data));
 mostrar();
+
+});
 }
 
 function mostrar(){
@@ -166,16 +103,65 @@ let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 lista.innerHTML="";
 
 data.slice().reverse().forEach(i=>{
+
 lista.innerHTML+=`
 <div class="card">
-<span class="estado pendiente">Pendiente</span>
-<b>${i.nombre}</b><br>
+<span class="estado ${i.estado}">${i.estado}</span>
+
+<b>#${i.numero} - ${i.nombre}</b><br>
 ${i.direccion}<br>
-${i.fecha}
+${i.fecha}<br>
+
+<button onclick="aprobar(${i.id})">Aprobar</button>
+<button onclick="rechazar(${i.id})">Rechazar</button>
+<button onclick="editar(${i.id})">Editar</button>
+<button onclick="eliminar(${i.id})">Eliminar</button>
+
 </div>
 `;
-});
 
+});
+}
+
+function eliminar(id){
+let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+data=data.filter(i=>i.id!=id);
+localStorage.setItem("inspecciones",JSON.stringify(data));
+mostrar();
+}
+
+function aprobar(id){cambiarEstado(id,"Aprobado")}
+function rechazar(id){cambiarEstado(id,"Rechazado")}
+
+function cambiarEstado(id,estado){
+let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+data.forEach(i=>{
+if(i.id==id) i.estado=estado;
+});
+localStorage.setItem("inspecciones",JSON.stringify(data));
+mostrar();
+}
+
+function editar(id){
+let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+let i=data.find(x=>x.id==id);
+
+nombre.value=i.nombre;
+direccion.value=i.direccion;
+responsable.value=i.responsable;
+telefono.value=i.telefono;
+
+eliminar(id);
+window.scrollTo({top:0});
+}
+
+function filtrar(){
+let texto=buscar.value.toLowerCase();
+let cards=document.querySelectorAll(".card");
+
+cards.forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(texto) ? "block" : "none";
+});
 }
 
 </script>
