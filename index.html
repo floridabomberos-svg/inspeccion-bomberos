@@ -3,43 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Inspección Bomberos</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#d32f2f">
-
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0;padding:0}
-.container{max-width:500px;margin:20px auto;background:white;padding:20px;border-radius:8px}
-input,textarea,select{width:100%;padding:10px;margin-top:8px}
-button{width:100%;padding:12px;margin-top:10px;background:red;color:white;border:none}
+body{
+font-family:Arial, sans-serif;
+margin:0;
+background:#f0f0f0;
+}
+
+.header{
+background:#d32f2f;
+color:white;
+padding:15px;
+text-align:center;
+font-weight:bold;
+font-size:18px;
+position:sticky;
+top:0;
+z-index:1000;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+input, textarea, select{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:6px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:6px;
+background:#d32f2f;
+color:white;
+width:100%;
+margin-top:8px;
+font-weight:bold;
+}
+
+.btn-float{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#d32f2f;
+color:white;
+width:60px;
+height:60px;
+border-radius:50%;
+font-size:30px;
+border:none;
+box-shadow:0 4px 10px rgba(0,0,0,.3);
+}
+
+.estado{
+padding:5px 10px;
+border-radius:5px;
+color:white;
+font-size:12px;
+float:right;
+}
+
+.pendiente{background:orange;}
+.aprobado{background:green;}
+.rechazado{background:red;}
+
+canvas{
+border:1px solid #ccc;
+border-radius:6px;
+width:100%;
+height:200px;
+}
+
 #panel{display:none}
-canvas{border:1px solid #000;width:100%;height:200px}
-img{width:100%;margin-top:10px}
-#menu button{background:white;color:#d32f2f;margin:2px}
 </style>
 
 </head>
 <body>
 
-<div id="menu" style="display:none;background:#d32f2f;color:white;padding:10px;position:sticky;top:0">
-<button onclick="mostrarFormulario()">Nueva</button>
-<button onclick="verRegistros()">Registros</button>
-<button onclick="exportar()">Exportar</button>
-<button onclick="instalar()">Instalar</button>
-<button onclick="logout()">Salir</button>
-</div>
+<div class="header">INSPECCIÓN BOMBEROS</div>
 
 <div class="container" id="login">
-<h2>Login</h2>
+<div class="card">
+<h3>Login</h3>
 <input type="text" id="usuario" placeholder="Usuario">
 <input type="password" id="password" placeholder="Contraseña">
 <button onclick="login()">Ingresar</button>
 </div>
+</div>
 
 <div class="container" id="panel">
-<h2>Nueva Inspección</h2>
+
+<div class="card">
+<h3>Nueva Inspección</h3>
 
 <input id="nombre" placeholder="Nombre establecimiento">
 <input id="direccion" placeholder="Dirección">
@@ -52,72 +122,59 @@ img{width:100%;margin-top:10px}
 <option>NO</option>
 </select>
 
-<label>Salidas de emergencia</label>
+<label>Salidas</label>
 <select id="salidas">
 <option>SI</option>
 <option>NO</option>
 </select>
 
-<label>Observaciones</label>
-<textarea id="obs"></textarea>
+<textarea id="obs" placeholder="Observaciones"></textarea>
 
 <label>Foto</label>
-<input type="file" accept="image/*" capture="camera" id="foto">
-<img id="preview">
+<input type="file" accept="image/*" id="foto">
+<img id="preview" style="width:100%;margin-top:5px">
 
 <label>Firma</label>
 <canvas id="firma"></canvas>
 <button onclick="limpiarFirma()">Limpiar firma</button>
 
-<button onclick="guardar()">Guardar inspección</button>
-<button onclick="logout()">Cerrar sesión</button>
+<button onclick="guardar()">Guardar</button>
 
-<h3>Inspecciones guardadas</h3>
+</div>
+
+<h3>Inspecciones</h3>
 <div id="lista"></div>
 
 </div>
 
+<button class="btn-float" onclick="scrollTop()">+</button>
+
 <script>
 
 let canvas, ctx, dibujando=false;
-let deferredPrompt;
 
 window.onload=function(){
 
 canvas=document.getElementById("firma");
 ctx=canvas.getContext("2d");
 
-canvas.addEventListener("mousedown",iniciar);
-canvas.addEventListener("mouseup",detener);
+canvas.addEventListener("mousedown",()=>dibujando=true);
+canvas.addEventListener("mouseup",()=>dibujando=false);
 canvas.addEventListener("mousemove",dibujar);
 
-canvas.addEventListener("touchstart",iniciarTouch);
-canvas.addEventListener("touchend",detener);
+canvas.addEventListener("touchstart",()=>dibujando=true);
+canvas.addEventListener("touchend",()=>dibujando=false);
 canvas.addEventListener("touchmove",dibujarTouch);
 
 document.getElementById("foto").addEventListener("change",function(e){
 let reader=new FileReader();
 reader.onload=function(){
-document.getElementById("preview").src=reader.result;
+preview.src=reader.result;
 }
 reader.readAsDataURL(e.target.files[0]);
 });
 
 }
-
-window.addEventListener('beforeinstallprompt', (e) => {
-e.preventDefault();
-deferredPrompt = e;
-});
-
-function instalar(){
-if(deferredPrompt){
-deferredPrompt.prompt();
-}
-}
-
-function iniciar(){dibujando=true}
-function detener(){dibujando=false;ctx.beginPath()}
 
 function dibujar(e){
 if(!dibujando) return;
@@ -129,19 +186,11 @@ ctx.beginPath();
 ctx.moveTo(e.offsetX,e.offsetY);
 }
 
-function iniciarTouch(e){
-e.preventDefault();
-dibujando=true;
-}
-
 function dibujarTouch(e){
-e.preventDefault();
 if(!dibujando) return;
-
 let rect=canvas.getBoundingClientRect();
 let x=e.touches[0].clientX-rect.left;
 let y=e.touches[0].clientY-rect.top;
-
 ctx.lineWidth=2;
 ctx.lineCap="round";
 ctx.lineTo(x,y);
@@ -155,28 +204,19 @@ ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 function login(){
-let user=document.getElementById("usuario").value;
-let pass=document.getElementById("password").value;
-
-if(user==="admin" && pass==="1996"){
-document.getElementById("login").style.display="none";
-document.getElementById("panel").style.display="block";
-document.getElementById("menu").style.display="block";
-mostrar();
+if(usuario.value==="admin" && password.value==="1996"){
+login.style.display="none";
+panel.style.display="block";
 }else{
-alert("Usuario incorrecto");
+alert("Datos incorrectos");
 }
-}
-
-function logout(){
-location.reload();
 }
 
 function guardar(){
+
 let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 
 let item={
-fecha:new Date().toLocaleString(),
 nombre:nombre.value,
 direccion:direccion.value,
 responsable:responsable.value,
@@ -185,43 +225,37 @@ extintores:extintores.value,
 salidas:salidas.value,
 obs:obs.value,
 foto:preview.src,
-firma:canvas.toDataURL()
+firma:canvas.toDataURL(),
+fecha:new Date().toLocaleString()
 };
 
 data.push(item);
 localStorage.setItem("inspecciones",JSON.stringify(data));
 mostrar();
-alert("Guardado correctamente");
 }
 
 function mostrar(){
+
 let data=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 lista.innerHTML="";
-data.forEach(i=>{
+
+data.reverse().forEach(i=>{
+
 lista.innerHTML+=`
-<div style="border:1px solid #ccc;padding:10px;margin-top:5px">
+<div class="card">
+<span class="estado pendiente">Pendiente</span>
 <b>${i.nombre}</b><br>
-${i.fecha}<br>
-${i.direccion}
-</div>`;
+${i.direccion}<br>
+${i.fecha}
+</div>
+`;
+
 });
+
 }
 
-function mostrarFormulario(){
-document.getElementById("panel").scrollIntoView();
-}
-
-function verRegistros(){
-document.getElementById("lista").scrollIntoView();
-}
-
-function exportar(){
-let data=localStorage.getItem("inspecciones");
-let blob=new Blob([data],{type:"application/json"});
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="inspecciones.json";
-a.click();
+function scrollTop(){
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
 </script>
