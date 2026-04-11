@@ -65,13 +65,26 @@ img{width:100%;margin-top:10px}
 </div>
 
 <script>
-let canvas=document.getElementById("firma");
-let ctx=canvas.getContext("2d");
-let dibujando=false;
+let canvas, ctx, dibujando=false;
+
+window.onload=function(){
+
+canvas=document.getElementById("firma");
+ctx=canvas.getContext("2d");
 
 canvas.addEventListener("mousedown",()=>dibujando=true);
 canvas.addEventListener("mouseup",()=>dibujando=false);
 canvas.addEventListener("mousemove",dibujar);
+
+document.getElementById("foto").addEventListener("change",function(e){
+let reader=new FileReader();
+reader.onload=function(){
+document.getElementById("preview").src=reader.result;
+}
+reader.readAsDataURL(e.target.files[0]);
+});
+
+}
 
 function dibujar(e){
 if(!dibujando) return;
@@ -87,19 +100,16 @@ function limpiarFirma(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-document.getElementById("foto").addEventListener("change",function(e){
-let reader=new FileReader();
-reader.onload=function(){
-preview.src=reader.result;
-}
-reader.readAsDataURL(e.target.files[0]);
-});
-
 function login(){
-if(usuario.value=="admin" && password.value=="1996"){
-login.style.display="none";
-panel.style.display="block";
+let user=document.getElementById("usuario").value;
+let pass=document.getElementById("password").value;
+
+if(user==="admin" && pass==="1996"){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
 mostrar();
+}else{
+alert("Usuario incorrecto");
 }
 }
 
@@ -126,7 +136,7 @@ firma:canvas.toDataURL()
 data.push(item);
 localStorage.setItem("inspecciones",JSON.stringify(data));
 mostrar();
-alert("Guardado");
+alert("Guardado correctamente");
 }
 
 function mostrar(){
