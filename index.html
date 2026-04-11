@@ -11,7 +11,20 @@ input,textarea{width:100%;padding:10px;margin:5px 0}
 button{background:red;color:white;padding:10px;border:none;width:100%;margin-top:5px}
 </style>
 </head>
-<body>
+<script>
+function login() {
+    var user = document.getElementById("usuario").value;
+    var pass = document.getElementById("password").value;
+
+    if(user === "admin" && pass === "1996"){
+        localStorage.setItem("logueado", "si");
+        window.location.href = "panel.html";
+    } else {
+        alert("Usuario o contraseña incorrectos");
+    }
+}
+</script>
+  <body>
 
 <div class="card" id="login">
 <h2>Login</h2>
