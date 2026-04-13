@@ -15,7 +15,7 @@ color:#000;
 
 header{
 background:#c62828;
-color:white;
+color:#fff;
 padding:15px;
 text-align:center;
 font-size:20px;
@@ -43,6 +43,7 @@ width:220px;
 border-radius:8px;
 box-shadow:0 3px 8px rgba(0,0,0,0.3);
 display:none;
+z-index:1000;
 }
 
 .dropdown button{
@@ -111,80 +112,50 @@ h3{margin-top:25px;}
 
 <div id="form" class="card hidden">
 
-<h3>Datos Generales</h3>
+<h3>Datos del establecimiento</h3>
 <input id="razon" placeholder="Razón social">
 <input id="nit" placeholder="NIT">
 <input id="direccion" placeholder="Dirección">
 <input id="barrio" placeholder="Barrio">
 <input id="telefono" placeholder="Teléfono">
-<input id="correo" placeholder="Correo">
+<input id="correo" placeholder="Correo electrónico">
 <input id="actividad" placeholder="Actividad comercial">
-<input id="empleados" placeholder="N° empleados">
+<input id="empleados" placeholder="Número de empleados">
 <input id="aforo" placeholder="Aforo">
 
 <h3>Ruta de evacuación</h3>
-<select id="ruta_senalizada">
-<option>Señalizada</option>
-<option>NO</option>
-</select>
-
-<select id="ruta_iluminada">
-<option>Iluminada</option>
-<option>NO</option>
-</select>
-
-<select id="ruta_despejada">
-<option>Despejada</option>
-<option>NO</option>
-</select>
+<select id="ruta1"><option>Señalizada SI</option><option>NO</option></select>
+<select id="ruta2"><option>Iluminada SI</option><option>NO</option></select>
+<select id="ruta3"><option>Despejada SI</option><option>NO</option></select>
 
 <h3>Extintores</h3>
-<input id="extintores" placeholder="Cantidad extintores">
-<select id="ext_senalizado">
-<option>Señalizados</option>
-<option>NO</option>
-</select>
-
-<input id="ext_vigencia" placeholder="Vigencia">
+<input id="extintores" placeholder="Cantidad">
+<select id="ext_senal"><option>Señalizados SI</option><option>NO</option></select>
+<input id="ext_vig" placeholder="Vigencia">
 
 <h3>Instalaciones eléctricas</h3>
-<select id="retie">
-<option>Certificado RETIE</option>
-<option>NO</option>
-</select>
-
-<select id="cable">
-<option>Cable expuesto</option>
-<option>NO</option>
-</select>
+<select id="retie"><option>Certificado RETIE SI</option><option>NO</option></select>
+<select id="conte"><option>Certificado CONTE SI</option><option>NO</option></select>
+<select id="cable"><option>Cable expuesto SI</option><option>NO</option></select>
 
 <h3>Señalización</h3>
-<select id="senal_visible">
-<option>Visible</option>
-<option>NO</option>
-</select>
-
-<select id="fotolumin">
-<option>Fotoluminiscente</option>
-<option>NO</option>
-</select>
+<select id="senal1"><option>Visible SI</option><option>NO</option></select>
+<select id="senal2"><option>Fotoluminiscente SI</option><option>NO</option></select>
+<select id="senal3"><option>Tamaño adecuado SI</option><option>NO</option></select>
 
 <h3>Salida de emergencia</h3>
-<select id="salida">
-<option>Señalizada</option>
-<option>NO</option>
-</select>
-
-<select id="abre">
-<option>Abre hacia afuera</option>
-<option>NO</option>
-</select>
+<select id="salida1"><option>Señalizada SI</option><option>NO</option></select>
+<select id="salida2"><option>Abre hacia afuera SI</option><option>NO</option></select>
+<select id="salida3"><option>Iluminación emergencia SI</option><option>NO</option></select>
 
 <h3>Botiquín</h3>
-<select id="botiquin">
-<option>SI</option>
-<option>NO</option>
-</select>
+<select id="botiquin"><option>SI</option><option>NO</option></select>
+
+<h3>Brigada de emergencia</h3>
+<select id="brigada"><option>SI</option><option>NO</option></select>
+
+<h3>Red contra incendios</h3>
+<select id="red"><option>SI</option><option>NO</option></select>
 
 <h3>Observaciones</h3>
 <textarea id="obs"></textarea>
@@ -247,7 +218,6 @@ razon:razon.value,
 nit:nit.value,
 direccion:direccion.value,
 actividad:actividad.value,
-extintores:extintores.value,
 concepto:concepto.value
 };
 
@@ -255,18 +225,18 @@ datos.push(registro);
 
 localStorage.setItem("inspecciones",JSON.stringify(datos));
 
-alert("Guardado");
+alert("Guardado correctamente");
 cargar();
 mostrar("lista");
 }
 
 function cargar(){
 
-let datos=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+let datosLS=JSON.parse(localStorage.getItem("inspecciones")||"[]");
 
-datosHTML.innerHTML="";
+datos.innerHTML="";
 
-datos.forEach(d=>{
+datosLS.forEach(d=>{
 let li=document.createElement("li");
 li.textContent=d.razon+" - "+d.concepto;
 datos.appendChild(li);
