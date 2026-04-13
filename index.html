@@ -42,6 +42,7 @@ button{
     border-radius:5px;
     width:100%;
     font-size:16px;
+    cursor:pointer;
 }
 .menu button{
     margin-bottom:10px;
@@ -52,6 +53,26 @@ button{
 .hidden{
     display:none;
 }
+
+/* BOTON FLOTANTE + */
+.fab{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#c62828;
+    color:white;
+    font-size:30px;
+    border:none;
+    box-shadow:0 3px 6px rgba(0,0,0,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+
 </style>
 </head>
 <body>
@@ -70,7 +91,6 @@ button{
 <div id="app" class="hidden">
     <div class="card menu">
         <h3>Menú Principal</h3>
-        <button onclick="mostrar('inspeccion')">Nueva Inspección</button>
         <button onclick="mostrar('lista')">Ver Registros</button>
         <button class="logout" onclick="logout()">Cerrar Sesión</button>
     </div>
@@ -82,11 +102,14 @@ button{
         <button onclick="guardar()">Guardar</button>
     </div>
 
-    <div id="lista" class="card hidden">
+    <div id="lista" class="card">
         <h3>Registros</h3>
         <ul id="datos"></ul>
     </div>
 </div>
+
+<!-- BOTON MAS -->
+<button class="fab" onclick="mostrar('inspeccion')">+</button>
 
 <script>
 const USER = "jvv";
@@ -133,6 +156,7 @@ function guardar(){
 
     alert('Guardado');
     cargar();
+    mostrar('lista');
 }
 
 function cargar(){
