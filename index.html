@@ -1,1 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspecciones CBV Florida</title>
 
+<style>
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#f5f7fb;
+color:#000;
+}
+
+header{
+background:#0d47a1;
+color:white;
+padding:15px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.navbar{
+background:#c62828;
+color:white;
+padding:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.menu-btn{
+font-size:22px;
+cursor:pointer;
+}
+
+.dropdown{
+position:absolute;
+top:95px;
+left:10px;
+background:white;
+width:220px;
+border-radius:8px;
+box-shadow:0 3px 8px rgba(0,0,0,0.3);
+display:none;
+z-index:1000;
+}
+
+.dropdown button{
+background:white;
+color:black;
+border:none;
+padding:12px;
+width:100%;
+text-align:left;
+cursor:pointer;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:8px;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+margin-bottom:15px;
+}
+
+input,select,textarea{
+width:100%;
+padding:8px;
+margin-bottom:10px;
+border:1px solid #ccc;
+border-radius:5px;
+color:black;
+}
+
+button{
+background:#0d47a1;
+color:white;
+border:none;
+padding:10px;
+border-radius:5px;
+cursor:pointer;
+width:100%;
+}
+
+.hidden{
+display:none;
+}
+</style></head>
+<body>
+
+<header>INSPECCIONES CBV FLORIDA</header>
+
+<div id="login" class="container">
+<div class="card">
+<h3>Ingreso</h3>
+<input id="usuario" placeholder="Usuario">
+<input id="password" type="password" placeholder="Contraseña">
+<button onclick="login()">Ingresar</button>
+</div>
+</div>
+
+<div id="app" class="hidden">
+
+<div class="navbar">
+<span class="menu-btn" onclick="toggleMenu()">☰</span>
+<span>Panel</span>
+</div>
+
+<div id="menu" class="dropdown">
+<button onclick="mostrar('form')">Nueva inspección</button>
+<button onclick="mostrar('lista')">Registros</button>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="container"><div id="form" class="card">
+<h3>Datos Generales</h3>
+
+<input id="razon" placeholder="Razón social">
+<input id="nit" placeholder="NIT">
+<input id="direccion" placeholder="Dirección">
+<input id="telefono" placeholder="Teléfono">
+<input id="actividad" placeholder="Actividad económica">
+
+<h3>Extintores</h3>
+<select id="extintores">
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<input id="cantidadExt" placeholder="Cantidad">
+
+<h3>Ruta evacuación</h3>
+<select id="ruta">
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<h3>Observaciones</h3>
+<textarea id="obs"></textarea>
+
+<button onclick="guardar()">Guardar inspección</button>
+</div><div id="lista" class="card hidden">
+<h3>Registros</h3>
+
+<input id="buscar" placeholder="Buscar..." onkeyup="cargar()">
+
+<ul id="datos"></ul>
+
+</div>
+
+</div>
+</div><script>
+
+const USER="jvv";
+const PASS="1996";
+
+function login(){
+let u=document.getElementById("usuario").value.trim();
+let p=document.getElementById("password").value.trim();
+
+if(u===USER && p===PASS){
+document.getElementById("login").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+}else{
+alert("Datos incorrectos");
+}
+}
+
+function logout(){
+document.getElementById("app").classList.add("hidden");
+document.getElementById("login").classList.remove("hidden");
+}
+
+function toggleMenu(){
+let m=document.getElementById("menu");
+m.style.display=(m.style.display==="block")?"none":"block";
+}
+
+function mostrar(id){
+document.getElementById("form").classList.add("hidden");
+document.getElementById("lista").classList.add("hidden");
+document.getElementById(id).classList.remove("hidden");
+}
+
+function guardar(){
+
+let datos=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+
+let registro={
+razon:document.getElementById("razon").value,
+direccion:document.getElementById("direccion").value,
+actividad:document.getElementById("actividad").value,
+concepto:document.getElementById("extintores").value
+};
+
+datos.push(registro);
+
+localStorage.setItem("inspecciones",JSON.stringify(datos));
+
+alert("Guardado correctamente");
+
+cargar();
+mostrar("lista");
+
+}
+
+function cargar(){
+
+let datosLS=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+
+let filtro=document.getElementById("buscar")?
+document.getElementById("buscar").value.toLowerCase():"";
+
+let lista=document.getElementById("datos");
+lista.innerHTML="";
+
+datosLS
+.filter(d=>d.razon.toLowerCase().includes(filtro))
+.forEach((d,i)=>{
+
+let li=document.createElement("li");
+
+li.innerHTML=`
+${d.razon} - ${d.concepto}
+<button onclick="eliminar(${i})">Eliminar</button>
+`;
+
+lista.appendChild(li);
+
+});
+}
+
+function eliminar(i){
+let datos=JSON.parse(localStorage.getItem("inspecciones")||"[]");
+datos.splice(i,1);
+localStorage.setItem("inspecciones",JSON.stringify(datos));
+cargar();
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>
